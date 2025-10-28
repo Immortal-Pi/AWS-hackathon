@@ -4,7 +4,7 @@ import datetime
 
 import sys 
 
-BASE_URL='http://localhost:8000' # backend end point 
+BASE_URL='http://127.0.0.1:8000' # backend end point 
 
 st.set_page_config(
     page_title='Travel Planner Agentic Application',
