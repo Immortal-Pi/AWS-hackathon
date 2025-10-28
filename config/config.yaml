@@ -1,0 +1,10 @@
+llm:
+  openai:
+    provider: 'azure-openai'
+    model_name: 'gpt-4o'
+    end_point: 'https://llmops-amruth.openai.azure.com/'
+    api_version: '2024-12-01-preview'
+
+  groq:
+    provider: 'groq'
+    model_name: "deepseek-r1-distill-llama-70b"

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Travel Planner</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="overlay">
+        <h1>Your Personal AI Travel Planner Agent</h1>
+        <p>Tell me where you'd like to go, and I'll build a personalized travel itinerary for you.</p>
+      </div>
+    </header>
+
+    <main class="chat-container">
+        <!-- <div id="ai-status" class="ai-status" hidden aria-live="polite">
+            <span class="spinner"></span>
+            <span>AI is thinking…</span>
+        </div> -->
+      <div id="chat-log" class="chat-log" aria-live="polite" aria-label="Chat history"></div>
+
+      <form id="chat-form" class="input-area" autocomplete="off">
+        <input
+          id="user-input"
+          type="text"
+          placeholder="e.g. Plan a trip to Goa for 5 days"
+          aria-label="Message"
+        />
+        <button id="send-btn" type="submit">Send</button>
+      </form>
+    </main>
+  </div>
+
+<script>
+  const BASE_URL = "http://127.0.0.1:8000";
+
+  const form       = document.getElementById("chat-form");
+  const userInput  = document.getElementById("user-input");
+  const sendBtn    = document.getElementById("send-btn");
+  const chatLog    = document.getElementById("chat-log");
+
+  function nowTime() {
+    const d = new Date();
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function showThinkingBtn() {
+    sendBtn.disabled = true;
+    userInput.disabled = true;
+    sendBtn.dataset.prevText = sendBtn.textContent;
+    sendBtn.textContent = "Thinking…";
+    sendBtn.setAttribute("aria-busy", "true");
+  }
+
+  function hideThinkingBtn() {
+    sendBtn.disabled = false;
+    userInput.disabled = false;
+    sendBtn.textContent = sendBtn.dataset.prevText || "Send";
+    sendBtn.removeAttribute("aria-busy");
+  }
+
+  function addMessage(role, text) {
+    const wrap = document.createElement("div");
+    wrap.className = `message ${role}`;
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+    bubble.style.whiteSpace = "pre-wrap";
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = (role === "user" ? "You" : "AI") + " • " + nowTime();
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(meta);
+    chatLog.appendChild(wrap);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return wrap;
+  }
+
+  function addTyping() {
+    const wrap = document.createElement("div");
+    wrap.className = "message ai";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble typing";
+    bubble.setAttribute("aria-label", "AI is typing");
+    bubble.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = "AI • " + nowTime();
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(meta);
+    chatLog.appendChild(wrap);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return wrap;
+  }
+
+  function replaceTyping(typingNode, text) {
+    if (!typingNode) return;
+    const bubble = typingNode.querySelector(".bubble");
+    bubble.classList.remove("typing");
+    bubble.textContent = text;
+    bubble.style.whiteSpace = "pre-wrap";
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const query = userInput.value.trim();
+    if (!query) return;
+
+    addMessage("user", query);
+    userInput.value = "";
+    userInput.focus();
+
+    const typingNode = addTyping();
+    showThinkingBtn();
+
+    try {
+      const response = await fetch(`${BASE_URL}/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: query })
+      });
+
+      if (!response.ok) {
+        replaceTyping(typingNode, `Bot failed to respond. (HTTP ${response.status})`);
+        return;
+      }
+
+      const data = await response.json();
+      replaceTyping(typingNode, data?.answer ?? "No answer received.");
+    } catch (err) {
+      replaceTyping(typingNode, "The response failed: " + err.message);
+    } finally {
+      hideThinkingBtn();
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    sendMessage();
+  });
+</script>
+</body>
+</html>
