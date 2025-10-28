@@ -15,4 +15,5 @@ langgraph
 langchain-groq
 langchain-google-community[places]
 bedrock-agentcore
+langchain-aws
 -e . 

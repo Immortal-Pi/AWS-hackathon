@@ -8,3 +8,12 @@ llm:
   groq:
     provider: 'groq'
     model_name: "deepseek-r1-distill-llama-70b"
+  bedrock:
+    region: us-east-1
+  claude_sonnet_4:
+    model_id: 'anthropic.claude-sonnet-4-20250514-v1:0'
+    inference_profile_ARN: 'arn:aws:bedrock:us-east-1:099296757093:inference-profile/global.anthropic.claude-sonnet-4-20250514-v1:0'
+  
+  claude_sonnet_4.5:
+    model_id: 'anthropic.claude-sonnet-4-5-20250929-v1:0'
+    inference_profile_ARN: 'arn:aws:bedrock:us-east-1:099296757093:inference-profile/global.anthropic.claude-sonnet-4-5-20250929-v1:0'

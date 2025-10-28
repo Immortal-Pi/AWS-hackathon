@@ -19,17 +19,17 @@ class PlaceSearchTool:
         Setup all tools for the place search tool
         """ 
         @tool 
-        def search_attractions(place:str)-> str:
+        def search_housing(place:str)-> str:
            """ 
-           Search attractions of a place
+           Search housing of a place
            """
            try:
-               attraction_result=self.google_places_search.google_search_attractions(place)
+               attraction_result=self.google_places_search.google_search_housing(place)
                if attraction_result:
-                   return f'FLoowing are the attactions of {place} as suggested by google: {attraction_result}'
+                   return f'Following are the housing of {place} as suggested by google: {attraction_result}'
            except Exception as e:
-               tavily_result=self.tavily_search.tavily_search_attractions(place)
-               return f'Google cannot find the details due to {e}. \n Following are the attractions of {place}:{tavily_result}'
+               tavily_result=self.tavily_search.tavily_search_housing(place)
+               return f'Google cannot find the details due to {e}. \n Following are the housing of {place}:{tavily_result}'
            
         @tool 
         def search_restaurents(place:str)->  str:
@@ -71,5 +71,17 @@ class PlaceSearchTool:
                 tavily_results=self.tavily_search.tavily_search_transporation(place)
                 return f"Google cannot find the details due to {e}. \n Following are the transportation available in {place}: {tavily_results}"
             
+        @tool
+        def search_legal_requirements(place:str)->str:
+            """ 
+            search for legal requirements for user question around the palce
+            """
+            try:
+                legal_results=self.tavily_search.tavily_search_transporation(place)
+                if legal_results:
+                    return f"Following are the legal advice for {place} as suggested by tavily: {legal_results}"
+            except Exception as e:
+                legal_results=self.tavily_search.tavily_search_transporation(place)
+                return f"Following are the legal advice for {place} as suggested by tavily: {legal_results}"
 
-        return [search_attractions,search_restaurents,search_activities,search_transportation]
+        return [search_housing,search_restaurents,search_activities,search_transportation,search_legal_requirements]

@@ -32,6 +32,17 @@ class GooglePlaceSearchTool:
         """
         return self.places_tool.run(f'What are the different modes of transportations available in {place}')
     
+    def google_search_housing(self,place:str)-> dict:
+        """ 
+        searches for housing accomodations in the specified place 
+        """
+        return self.places_tool.run(f'what are the different housing accomodations for students near {place}')
+    
+    # def google_legal_requirements(self,place:str)-> dict:
+    #     """ 
+    #     searches for leagal requirements to the specified place 
+    #     """
+    #     return self.places_tool.run(f'what are the different housing accomodations for students near {place}')
 
 class TaviltyPlaceSearchTool:
     def __init__(self):
@@ -73,6 +84,16 @@ class TaviltyPlaceSearchTool:
         """
         tavily_tool=TavilySearch(topic='general',include_answer='advanced')
         result=tavily_tool.invoke({'query':f'what are the different modes of transportations avaialbe in {place}'})
+        if isinstance(result,dict) and result.get('answer'):
+            return result['answer']
+        return result
+    
+    def tavily_search_housing(self,place:str)->dict:
+        """ 
+        Searches for housing in the specified place using TavilySearch
+        """
+        tavily_tool=TavilySearch(topic='general',include_answer='advanced')
+        result=tavily_tool.invoke({'query':f'what are the different housing accomodations for students near {place}'})
         if isinstance(result,dict) and result.get('answer'):
             return result['answer']
         return result

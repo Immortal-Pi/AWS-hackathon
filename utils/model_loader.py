@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 from langchain_groq import ChatGroq
 from langchain_openai import AzureChatOpenAI 
 from utils.config_loader import load_config
+from langchain_aws import ChatBedrockConverse
+from utils.bedrock_profile import _bedrock_via_profile
 
 
 class ConfigLoader():
@@ -19,7 +21,7 @@ class ConfigLoader():
 
 
 class ModelLoader(BaseModel):
-    model_provider: Literal['groq','openai'] = 'groq'
+    model_provider: Literal['groq','openai','claude_4','claude_4.5'] = 'groq'
     config: Optional[ConfigLoader]=Field(default=None, exclude=True)
 
     def model_post_init(self,__context: Any)-> None:
@@ -49,6 +51,31 @@ class ModelLoader(BaseModel):
                 azure_endpoint=self.config['llm']['openai']['end_point'],
                 api_version=self.config['llm']['openai']['api_version']
             )
+        elif self.model_provider == 'claude_4':
+            print('Loading Claude Sonnet 4 from Amazon Bedrock.....')
+            region = self.config['llm']['bedrock'].get('region', os.getenv('AWS_REGION', 'us-east-1'))
+            arn    = self.config['llm']['claude_sonnet_4']['inference_profile_ARN']
+            llm = _bedrock_via_profile(region, arn)
+            return llm
+            
+
+        elif self.model_provider == 'claude_4.5':
+            print('Loading Claude Sonnet 4.5 from Amazon Bedrock.....')
+            arn    = self.config['llm']['claude_sonnet_4.5']['inference_profile_ARN']
+            region = self.config['llm']['bedrock'].get('region', os.getenv('AWS_REGION', 'us-east-1'))
+            model_id = self.config['llm']['claude_sonnet_4.5']['model_id']  # e.g. "anthropic.claude-3-5-sonnet-20241022-v2:0"
+            llm = ChatBedrockConverse(
+                # model_id="anthropic.claude-3-5-sonnet-latest-v1:0",
+                region_name=region,
+                inference_profile_arn=arn
+            #     aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+            #     aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+            #    # aws_session_token=...,
+                # temperature=...,
+                # max_tokens=...,
+                # other params...
+            )
+            # llm = _llm_from_bedrock_profile(region, arn)
         return llm
 
 
