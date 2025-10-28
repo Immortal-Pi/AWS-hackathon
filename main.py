@@ -59,6 +59,8 @@ async def query_travel_agent(query:QueryRequest):
         return JSONResponse(status_code=500,content={'error':str(e)})
     
 
+# test 
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
